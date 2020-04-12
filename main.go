@@ -1,27 +1,49 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"os/user"
 	"path/filepath"
 	"time"
+
+	"github.com/spf13/cobra"
+)
+
+const (
+	defaultTTL = -1 * time.Second
+)
+
+var (
+	paths []string
+	ttl   time.Duration
 )
 
 func main() {
 	// cobra command
+	rootCmd := &cobra.Command{
+		Use:   "go-cleanup",
+		Short: "go-cleanup is an utility to clean up files after certain time",
+		Run:   cmdHandler,
+	}
 
-
-	usr, err := user.Current()
+	rootCmd.Flags().StringArrayVarP(&paths, "paths", "p", paths, "paths to process")
+	err := rootCmd.MarkFlagRequired("paths")
 	if err != nil {
 		panic(err)
 	}
+	rootCmd.Flags().DurationVarP(&ttl, "ttl", "t", defaultTTL, "paths to process")
 
-	root := fmt.Sprintf("%s/Downloads", usr.HomeDir)
-
-	err = filepath.Walk(root, walkHandler)
+	err = rootCmd.Execute()
 	if err != nil {
 		panic(err)
+	}
+}
+
+func cmdHandler(cmd *cobra.Command, args []string) {
+	for _, path := range paths {
+		err := filepath.Walk(path, walkHandler)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -30,7 +52,13 @@ func walkHandler(path string, file os.FileInfo, err error) error {
 		return err
 	}
 
-	baseline := time.Now().AddDate(0, -1, 0)
+	var baseline time.Time
+	if ttl == defaultTTL {
+		baseline = time.Now().AddDate(0, -1, 0)
+	} else {
+		baseline = time.Now().Add(ttl)
+	}
+
 	if file.ModTime().Before(baseline) {
 		if err := os.Remove(path); err != nil {
 			return err
