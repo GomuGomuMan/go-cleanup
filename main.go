@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	defaultTTL = -1 * time.Second
+	defaultTTL = -time.Hour * 24 * 30
 )
 
 var (
@@ -30,7 +30,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	rootCmd.Flags().DurationVarP(&ttl, "ttl", "t", defaultTTL, "paths to process")
+	rootCmd.Flags().DurationVarP(&ttl, "ttl", "t", defaultTTL, "expire time")
 
 	err = rootCmd.Execute()
 	if err != nil {
