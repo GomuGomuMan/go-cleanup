@@ -1,10 +1,18 @@
 # go-cleanup
 
 ## What it is
-An utility to clean up files not used after certain time
+An utility to clean up files/directories not used after certain time
 
 ## Why
 Because I'm too lazy to clean up myself
+
+## A little more details
+* Default TTL is 30 days
+
+## Install
+```bash
+go get -u github.com/GomuGomuMan/go-cleanup
+```
 
 ## Example
 ```bash

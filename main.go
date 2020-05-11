@@ -60,7 +60,7 @@ func walkHandler(path string, file os.FileInfo, err error) error {
 	}
 
 	if file.ModTime().Before(baseline) {
-		if err := os.Remove(path); err != nil {
+		if err := os.RemoveAll(path); err != nil {
 			return err
 		}
 	}
