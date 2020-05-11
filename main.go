@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -13,8 +14,9 @@ const (
 )
 
 var (
-	paths []string
-	ttl   time.Duration
+	paths           []string
+	ttl             time.Duration
+	deletedDirPaths []string
 )
 
 func main() {
@@ -33,7 +35,7 @@ func main() {
 	rootCmd.Flags().DurationVarP(&ttl, "ttl", "t", defaultTTL, "expire time")
 
 	err = rootCmd.Execute()
-	if err != nil {
+	if err != nil && err != filepath.SkipDir {
 		panic(err)
 	}
 }
@@ -52,6 +54,12 @@ func walkHandler(path string, file os.FileInfo, err error) error {
 		return err
 	}
 
+	for _, delDirPath := range deletedDirPaths {
+		if strings.HasPrefix(path, delDirPath) {
+			return filepath.SkipDir
+		}
+	}
+
 	var baseline time.Time
 	if ttl == defaultTTL {
 		baseline = time.Now().AddDate(0, -1, 0)
@@ -62,6 +70,10 @@ func walkHandler(path string, file os.FileInfo, err error) error {
 	if file.ModTime().Before(baseline) {
 		if err := os.RemoveAll(path); err != nil {
 			return err
+		}
+
+		if file.IsDir() {
+			deletedDirPaths = append(deletedDirPaths, path)
 		}
 	}
 
