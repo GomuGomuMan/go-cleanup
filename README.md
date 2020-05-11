@@ -22,5 +22,5 @@ go-cleanup -p ~/Downloads
 If you want to set up to run in a schedule, simply register it with `crontab`.
 My setup is every system start:
 ```bash
-@reboot go-cleanup -p ~/Downloads
+@daily go-cleanup -p ~/Downloads
 ```
