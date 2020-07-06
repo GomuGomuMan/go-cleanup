@@ -1,41 +1,30 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"encoding/json"
+	"go-cleanup/usecases"
+	"io/ioutil"
 	"path/filepath"
-	"time"
 
 	"github.com/spf13/cobra"
 )
 
-const (
-	defaultTTL = -time.Hour * 24 * 30
-
-	flagPath = "path"
-)
-
 var (
-	paths           []string
-	ttl             time.Duration
+	settingPath string
 )
 
 func main() {
 	// cobra command
 	rootCmd := &cobra.Command{
 		Use:   "go-cleanup",
-		Short: "go-cleanup is an utility to clean up files after certain time",
+		Short: "go-cleanup is an utility to clean up files after certain time and unused git branches",
 		Run:   cmdHandler,
 	}
 
-	rootCmd.Flags().StringArrayVarP(&paths, flagPath, "p", paths, "paths to process")
-	err := rootCmd.MarkFlagRequired(flagPath)
+	rootCmd.Flags().StringVarP(&settingPath, "file", "f", "", "option file path")
+	err := rootCmd.MarkFlagRequired("file")
 	if err != nil {
 		panic(err)
-	}
-	rootCmd.Flags().DurationVarP(&ttl, "ttl", "t", defaultTTL, "expire time")
-	if int64(ttl) >= 0 {
-		panic("ttl shouldn't be positive")
 	}
 
 	err = rootCmd.Execute()
@@ -44,29 +33,43 @@ func main() {
 	}
 }
 
-func cmdHandler(cmd *cobra.Command, args []string) {
-	for _, path := range paths {
-		err := filepath.Walk(path, getWalkHandler())
+func cmdHandler(_ *cobra.Command, _ []string) {
+	if settingPath == "" {
+		panic("setting path cannot be empty")
+	}
+
+	settingPath, err := filepath.Abs(settingPath)
+	if err != nil {
+		panic(err)
+	}
+
+	fileBytes, err := ioutil.ReadFile(settingPath)
+	if err != nil {
+		panic(err)
+	}
+
+	var settings usecases.Settings
+	err = json.Unmarshal(fileBytes, &settings)
+	if err != nil {
+		panic(err)
+	}
+
+	err = settings.Validate()
+	if err != nil {
+		panic(err)
+	}
+
+	for _, dir := range settings.Directories {
+		err := dir.Clean()
 		if err != nil {
 			panic(err)
 		}
 	}
-}
 
-func getWalkHandler() filepath.WalkFunc {
-	baseline := time.Now().Add(ttl)
-
-	return func(path string, file os.FileInfo, err error) error {
+	for _, repo := range settings.Repositories {
+		err := repo.Clean()
 		if err != nil {
-			return fmt.Errorf("failed to walk path: %w", err)
+			panic(err)
 		}
-
-		if file.ModTime().Before(baseline) {
-			if err := os.RemoveAll(path); err != nil {
-				return fmt.Errorf("failed to remove file/dir: %w", err)
-			}
-		}
-
-		return nil
 	}
 }

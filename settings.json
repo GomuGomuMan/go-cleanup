@@ -1,0 +1,17 @@
+{
+  "repositories": [
+    {
+      "path": "~/code/golang",
+      "pattern": "^release-*",
+      "keep_recent_num": 5
+    }
+  ],
+  "directories": [
+    {
+      "path": "~/Downloads"
+    },
+    {
+      "path": "~/Desktop"
+    }
+  ]
+}
