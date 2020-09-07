@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"../config"
+	"github.com/GomuGomuMan/go-cleanup/internal/config"
 )
 
 const (
@@ -19,7 +19,6 @@ type Directory struct {
 }
 
 func (d Directory) Clean() error {
-
 	var baseline time.Time
 	if d.TTL.Duration == 0 {
 		baseline = time.Now().Add(defaultTTL)

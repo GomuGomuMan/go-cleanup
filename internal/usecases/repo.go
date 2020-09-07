@@ -5,8 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"../config"
-
+	"github.com/GomuGomuMan/go-cleanup/internal/config"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/storer"

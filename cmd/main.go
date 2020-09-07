@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/GomuGomuMan/go-cleanup/usecases"
+	"github.com/GomuGomuMan/go-cleanup/internal/usecases"
 	"github.com/spf13/cobra"
 )
 
