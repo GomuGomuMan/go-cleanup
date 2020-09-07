@@ -2,10 +2,11 @@ package usecases
 
 import (
 	"fmt"
-	"go-cleanup/config"
 	"os"
 	"path/filepath"
 	"time"
+
+	"../config"
 )
 
 const (
@@ -18,6 +19,7 @@ type Directory struct {
 }
 
 func (d Directory) Clean() error {
+
 	var baseline time.Time
 	if d.TTL.Duration == 0 {
 		baseline = time.Now().Add(defaultTTL)

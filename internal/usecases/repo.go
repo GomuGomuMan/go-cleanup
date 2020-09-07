@@ -2,9 +2,10 @@ package usecases
 
 import (
 	"fmt"
-	"go-cleanup/config"
 	"regexp"
 	"strings"
+
+	"../config"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"

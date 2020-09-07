@@ -1,4 +1,4 @@
-module go-cleanup
+module github.com/GomuGomuMan/go-cleanup
 
 go 1.14
 
